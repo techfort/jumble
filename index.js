@@ -78,6 +78,8 @@ module.exports = (function () {
       for (prop in map.$map) {
         if (map.$map[prop].type === 'plain') {
           fields.push(obj ? convertField(map.$map[prop].ref, obj[prop]) || '' : undefined);
+        } else if (map.$map[prop].type === 'objectarray') {
+          fields.push(obj ? convertField('objectarray', obj[prop], JumbleMaps[map.$map[prop].ref]) : undefined);
         } else {
           fields.push(serializeObject(JumbleMaps[prop])(obj[prop]));
         }
@@ -96,6 +98,9 @@ module.exports = (function () {
         if (map.$map[prop].type === 'plain') {
           var field = fields.shift();
           obj[prop] = deserializeField(map.$map[prop].ref, field);
+        } else if (map.$map[prop].type === 'map' && map.$map[prop].ref === 'objectarray') {
+          // TODO
+          obj[prop] = deserializeArray(JumbleMaps[prop])(fields.shift());
         } else {
           obj[prop] = deserializeObject(JumbleMaps[prop])(fields.join(c(0x0003)));
         }
